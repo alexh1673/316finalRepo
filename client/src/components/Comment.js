@@ -10,10 +10,13 @@ import Button from '@mui/material/Button';
 import HomeIcon from '@mui/icons-material/Home';
 
 const commentBox = () => {
+    const { store } = useContext(GlobalStoreContext);
+    const { auth } = useContext(AuthContext);
+
 return(
     <div>
-        <Box>
-            
+        <Box sx={{ p: 1 }}>
+                store.comment
         </Box>
     </div>
 )
