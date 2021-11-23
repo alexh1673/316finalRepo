@@ -8,6 +8,9 @@ import  AuthContext  from '../auth';
 import DeleteModal from './DeleteModal'
 import Button from '@mui/material/Button';
 import HomeIcon from '@mui/icons-material/Home';
+import GroupIcon from '@mui/icons-material/Group';
+import PersonIcon from '@mui/icons-material/Person';
+import FunctionsIcon from '@mui/icons-material/Functions';
 
 
 /*
@@ -45,10 +48,12 @@ const HomeScreen = () => {
     return (
         <div id="top5-list-selector">
             <Button><HomeIcon/></Button>
-            <Button><HomeIcon/></Button>
-            <Button><HomeIcon/></Button>
-            <Button><HomeIcon/></Button>
-            <TextField label = "Search"></TextField>
+            <Button><GroupIcon/></Button>
+            <Button><PersonIcon/></Button>
+            <Button><FunctionsIcon/></Button>
+            <TextField label = "Search"
+                       style ={{width: '60%'}}
+            ></TextField>
             <div id="list-selector-list">
                 {
                     listCard
