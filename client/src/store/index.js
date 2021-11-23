@@ -1,9 +1,6 @@
 import { createContext, useContext, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import jsTPS from '../common/jsTPS'
 import api from '../api'
-import MoveItem_Transaction from '../transactions/MoveItem_Transaction'
-import UpdateItem_Transaction from '../transactions/UpdateItem_Transaction'
 import AuthContext from '../auth'
 /*
     This is our global data store. Note that it uses the Flux design pattern,
@@ -29,9 +26,6 @@ export const GlobalStoreActionType = {
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE"
 }
 
-// WE'LL NEED THIS TO PROCESS TRANSACTIONS
-const tps = new jsTPS();
-
 // WITH THIS WE'RE MAKING OUR GLOBAL DATA STORE
 // AVAILABLE TO THE REST OF THE APPLICATION
 function GlobalStoreContextProvider(props) {
@@ -42,7 +36,8 @@ function GlobalStoreContextProvider(props) {
         newListCounter: 0,
         listNameActive: false,
         itemActive: false,
-        listMarkedForDeletion: null
+        listMarkedForDeletion: null,
+        comments:"halbawe"
     });
     const history = useHistory();
 
@@ -198,7 +193,6 @@ function GlobalStoreContextProvider(props) {
             payload: {}
         });
         
-        tps.clearAllTransactions();
         history.push("/");
     }
 
@@ -212,7 +206,6 @@ function GlobalStoreContextProvider(props) {
         };
         const response = await api.createTop5List(payload);
         if (response.data.success) {
-            tps.clearAllTransactions();
             let newList = response.data.top5List;
             storeReducer({
                 type: GlobalStoreActionType.CREATE_NEW_LIST,
@@ -284,32 +277,21 @@ function GlobalStoreContextProvider(props) {
     // moveItem, updateItem, updateCurrentList, undo, and redo
     store.setCurrentList = async function (id) {
         let response = await api.getTop5ListById(id);
+        console.log(store.comments)
         if (response.data.success) {
             let top5List = response.data.top5List;
-
+            
             response = await api.updateTop5ListById(top5List._id, top5List);
             if (response.data.success) {
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
-                    payload: top5List
+                    payload: top5List,
+                    comments: response.data.comments
                 });
                 history.push("/top5list/" + top5List._id);
             }
         }
-        store.unre()
-    }
-
-    store.addMoveItemTransaction = function (start, end) {
-        let transaction = new MoveItem_Transaction(store, start, end);
-        tps.addTransaction(transaction);
-        store.unre()
-    }
-
-    store.addUpdateItemTransaction = function (index, newText) {
-        let oldText = store.currentList.items[index];
-        let transaction = new UpdateItem_Transaction(store, index, oldText, newText);
-        tps.addTransaction(transaction);
-        store.unre()
+        console.log(store.comments)
     }
 
     store.moveItem = function (start, end) {
@@ -347,40 +329,6 @@ function GlobalStoreContextProvider(props) {
                 payload: store.currentList
             });
         }
-    }
-
-    store.undo = function () {
-        tps.undoTransaction();
-        store.unre()
-    }
-
-    store.redo = function () {
-        tps.doTransaction();
-        store.unre()
-    }
-
-    store.canUndo = function() {
-        return tps.hasTransactionToUndo();
-    }
-
-    store.canRedo = function() {
-        return tps.hasTransactionToRedo();
-    }
-
-    store.unre = function(){
-        let s = document.getElementById('undo-button')
-        s.classList.add("top5-button-disabled")
-        let r = document.getElementById('redo-button')
-        r.classList.add("top5-button-disabled")
-        if(tps.hasTransactionToRedo())
-        {
-            r.classList.remove("top5-button-disabled")
-        }
-        if(tps.hasTransactionToUndo())
-        {
-            s.classList.remove("top5-button-disabled")
-        }
-
     }
 
     // THIS FUNCTION ENABLES THE PROCESS OF EDITING A LIST NAME
